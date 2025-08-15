@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:teams_modifier_app/home_page.dart';
 
 void main() {
@@ -13,10 +14,27 @@ class TeamsGifChanger extends StatelessWidget {
     return MaterialApp(
       title: 'Teams background changer',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromRGBO(61, 47, 129, 1.0),
+          brightness: Brightness.dark,
+        ),
+
+        textTheme: TextTheme(
+          displayLarge: const TextStyle(
+            fontSize: 72,
+            fontWeight: FontWeight.bold,
+          ),
+          titleLarge: GoogleFonts.roboto(
+            fontSize: 30,
+            fontStyle: FontStyle.normal,
+          ),
+          bodyMedium: GoogleFonts.merriweather(),
+          displaySmall: GoogleFonts.pacifico(),
+        ),
+
         useMaterial3: true,
       ),
-      home: HomePage(title: 'Flutter Demo Home Page', key: super.key),
+      home: HomePage(title: 'Teams background changer', key: super.key),
     );
   }
 }
