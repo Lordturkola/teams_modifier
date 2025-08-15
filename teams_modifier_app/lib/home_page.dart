@@ -28,11 +28,12 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            const Text('1. Upload a gif'),
+            ElevatedButton(onPressed: () {}, child: Text("Upload")),
+            const Text('2. Press "Set background"'),
+            ElevatedButton(onPressed: () {}, child: Text("Set background")),
+
+            const Text('3. Select the video background in teams!'),
           ],
         ),
       ),
