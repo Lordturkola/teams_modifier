@@ -44,87 +44,92 @@ class _HomePageState extends State<HomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Container(
-          alignment: Alignment.topCenter,
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
-          padding: EdgeInsets.all(40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('1. Choose GIF', style: textTheme.displaySmall),
-              SizedBox(height: 20),
-              Container(
-                width: 256,
-                height: 256,
-                color: colorTheme.surfaceContainer,
-                child: FutureBuilder(
-                  future: _gif,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (snapshot.data != null) {
-                      _gifSelected = true;
+        child: SingleChildScrollView(
+          child: Container(
+            alignment: Alignment.topCenter,
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
+            padding: EdgeInsets.all(40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text('1. Choose GIF', style: textTheme.displaySmall),
+                SizedBox(height: 20),
+                Container(
+                  width: 256,
+                  height: 256,
+                  color: colorTheme.surfaceContainer,
+                  child: FutureBuilder(
+                    future: _gif,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (snapshot.data != null) {
+                        _gifSelected = true;
 
-                      // Display the GIF
-                      return GiphyImage.original(
-                        gif: snapshot.data!,
-                        width: 256,
-                        height: 256,
-                      );
-                    } else {
-                      _gifSelected = false;
-                      return const Center(child: Text('No GIF selected'));
-                    }
-                  },
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  pickGif();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorTheme.tertiaryContainer,
-                  foregroundColor: colorTheme.onTertiary,
-                  textStyle: textTheme.headlineLarge,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 20,
-                  ), // Increase padding
-                ),
-                icon: Icon(
-                  Icons.upload_outlined,
-                  size: textTheme.headlineLarge?.fontSize,
-                ),
-                label: Text("Choose GIF"),
-              ),
-
-              SizedBox(height: 40),
-              Text('2. Press "Set background"', style: textTheme.displaySmall),
-              SizedBox(height: 20),
-              FilledButton(
-                onPressed: _gifSelected
-                    ? () {
-                        // Button action
+                        // Display the GIF
+                        return GiphyImage.original(
+                          gif: snapshot.data!,
+                          width: 256,
+                          height: 256,
+                        );
+                      } else {
+                        _gifSelected = false;
+                        return const Center(child: Text('No GIF selected'));
                       }
-                    : null,
-                style: FilledButton.styleFrom(
-                  textStyle: textTheme.headlineLarge,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 20,
-                  ), // Increase padding
+                    },
+                  ),
                 ),
-                child: Text("Set background"),
-              ),
-              SizedBox(height: 20),
-              Text(
-                '3. Select the video background in teams!',
-                style: textTheme.displaySmall,
-              ),
-            ],
+                SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    pickGif();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorTheme.tertiaryContainer,
+                    foregroundColor: colorTheme.onTertiary,
+                    textStyle: textTheme.headlineLarge,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 20,
+                    ), // Increase padding
+                  ),
+                  icon: Icon(
+                    Icons.upload_outlined,
+                    size: textTheme.headlineLarge?.fontSize,
+                  ),
+                  label: Text("Choose GIF"),
+                ),
+
+                SizedBox(height: 40),
+                Text(
+                  '2. Press "Set background"',
+                  style: textTheme.displaySmall,
+                ),
+                SizedBox(height: 20),
+                FilledButton(
+                  onPressed: _gifSelected
+                      ? () {
+                          // Button action
+                        }
+                      : null,
+                  style: FilledButton.styleFrom(
+                    textStyle: textTheme.headlineLarge,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 20,
+                    ), // Increase padding
+                  ),
+                  child: Text("Set background"),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  '3. Select the video background in teams!',
+                  style: textTheme.displaySmall,
+                ),
+              ],
+            ),
           ),
         ),
       ),
