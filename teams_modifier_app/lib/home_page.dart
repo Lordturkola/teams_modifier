@@ -11,12 +11,23 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _counter = 0;
   Future<GiphyGif?> _gif = Future.value(null);
+  bool _gifSelected = false;
 
   pickGif() async {
-    _gif = GiphyPicker.pickGif(
+    final gif = await GiphyPicker.pickGif(
+      showPreviewPage: false,
+      showGiphyAttribution: false,
       context: context,
       apiKey: "tS2O2obRK2Bs7LmAGcpmui0lwVidNbxW",
     );
+    setState(() {
+      if (gif != null) {
+        _gif = Future.value(gif);
+        _gifSelected = true;
+      } else {
+        _gifSelected = false;
+      }
+    });
   }
 
   @override
@@ -27,7 +38,6 @@ class _HomePageState extends State<HomePage> {
     final textTheme = Theme.of(context).textTheme;
     final btnTheme = Theme.of(context).buttonTheme;
 
-    bool isButtonEnabled = false;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -41,7 +51,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text('1. Upload a gif', style: textTheme.displaySmall),
+              Text('1. Choose GIF', style: textTheme.displaySmall),
               SizedBox(height: 20),
               Container(
                 width: 256,
@@ -55,9 +65,16 @@ class _HomePageState extends State<HomePage> {
                     } else if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     } else if (snapshot.data != null) {
+                      _gifSelected = true;
+
                       // Display the GIF
-                      return GiphyImage.original(gif: snapshot.data!);
+                      return GiphyImage.original(
+                        gif: snapshot.data!,
+                        width: 256,
+                        height: 256,
+                      );
                     } else {
+                      _gifSelected = false;
                       return const Center(child: Text('No GIF selected'));
                     }
                   },
@@ -81,14 +98,14 @@ class _HomePageState extends State<HomePage> {
                   Icons.upload_outlined,
                   size: textTheme.headlineLarge?.fontSize,
                 ),
-                label: Text("Choose"),
+                label: Text("Choose GIF"),
               ),
 
               SizedBox(height: 40),
               Text('2. Press "Set background"', style: textTheme.displaySmall),
               SizedBox(height: 20),
               FilledButton(
-                onPressed: isButtonEnabled
+                onPressed: _gifSelected
                     ? () {
                         // Button action
                       }
