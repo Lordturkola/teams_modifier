@@ -48,17 +48,24 @@ class _HomePageState extends State<HomePage> {
                 child: Text("placeholder for chosen gif"),
               ),
               SizedBox(height: 20),
-              FilledButton(
+              ElevatedButton.icon(
                 onPressed: () {},
-                style: FilledButton.styleFrom(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: btnTheme.colorScheme?.tertiaryContainer,
+                  foregroundColor: btnTheme.colorScheme?.onTertiaryContainer,
                   textStyle: textTheme.headlineLarge,
                   padding: EdgeInsets.symmetric(
                     horizontal: 40,
                     vertical: 20,
                   ), // Increase padding
                 ),
-                child: Text("Upload"),
+                icon: Icon(
+                  Icons.upload_outlined,
+                  size: textTheme.headlineLarge?.fontSize,
+                ),
+                label: Text("Choose"),
               ),
+
               SizedBox(height: 40),
               Text('2. Press "Set background"', style: textTheme.displaySmall),
               SizedBox(height: 20),
