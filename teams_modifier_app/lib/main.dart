@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:giphy_get/l10n.dart';
 import 'package:teams_modifier_app/home_page.dart';
 import 'package:teams_modifier_app/teams_text_theme.dart';
 import 'package:teams_modifier_app/teams_theme.dart';
@@ -17,6 +18,16 @@ class TeamsGifChanger extends StatelessWidget {
     MaterialTheme teamsTheme = MaterialTheme(textTheme);
 
     return MaterialApp(
+      localizationsDelegates: [
+        // Default Delegates
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GiphyGetUILocalizations.delegate,
+      ],
+      supportedLocales: [
+        // Your supported languages
+        Locale('en', ''),
+      ],
       title: 'Teams background changer',
 
       theme: brightness == Brightness.light

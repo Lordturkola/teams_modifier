@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:giphy_picker/giphy_picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
   final String title;
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   int _counter = 0;
+  Future<GiphyGif?> _gif = Future.value(null);
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  pickGif() async {
+    _gif = GiphyPicker.pickGif(
+      context: context,
+      apiKey: "tS2O2obRK2Bs7LmAGcpmui0lwVidNbxW",
+    );
   }
 
   @override
@@ -45,11 +47,27 @@ class _HomePageState extends State<HomePage> {
                 width: 256,
                 height: 256,
                 color: colorTheme.surfaceContainer,
-                child: Text("placeholder for chosen gif"),
+                child: FutureBuilder(
+                  future: _gif,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (snapshot.data != null) {
+                      // Display the GIF
+                      return GiphyImage.original(gif: snapshot.data!);
+                    } else {
+                      return const Center(child: Text('No GIF selected'));
+                    }
+                  },
+                ),
               ),
               SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  pickGif();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorTheme.tertiaryContainer,
                   foregroundColor: colorTheme.onTertiary,
