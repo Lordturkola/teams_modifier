@@ -6,6 +6,23 @@ void main() {
   runApp(const TeamsGifChanger());
 }
 
+@immutable
+class TeamsTheme {
+  const TeamsTheme({
+    this.primarycolor = const Color(0xFF3d2f81),
+    this.secondaryColor = const Color(0xFF7382ff),
+    this.tertriaryColor = const Color(0xFF25c3e6),
+    this.accentColor = const Color(0XFFb182ff),
+    this.neutralColor = const Color(0Xffd18088),
+  });
+
+  final Color primarycolor;
+  final Color secondaryColor;
+  final Color tertriaryColor;
+  final Color accentColor;
+  final Color neutralColor;
+}
+
 class TeamsGifChanger extends StatelessWidget {
   const TeamsGifChanger({super.key});
 
@@ -31,8 +48,13 @@ class TeamsGifChanger extends StatelessWidget {
           bodyMedium: GoogleFonts.merriweather(),
           displaySmall: GoogleFonts.pacifico(),
         ),
-
-        useMaterial3: true,
+        scaffoldBackgroundColor: const Color.fromRGBO(115, 130, 255, 1.0),
+        buttonTheme: ButtonThemeData(
+          minWidth: 200,
+          height: 50,
+          padding: EdgeInsets.all(10),
+        ),
+        useMaterial3: false,
       ),
       home: HomePage(title: 'Teams background changer', key: super.key),
     );
