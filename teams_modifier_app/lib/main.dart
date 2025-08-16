@@ -23,6 +23,10 @@ class TeamsTheme {
   final Color neutralColor;
 }
 
+ThemeData toThemeData(){
+  return ThemeData(useMaterial3: true);
+}
+
 class TeamsGifChanger extends StatelessWidget {
   const TeamsGifChanger({super.key});
 
