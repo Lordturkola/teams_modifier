@@ -51,8 +51,8 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton.icon(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: btnTheme.colorScheme?.tertiaryContainer,
-                  foregroundColor: btnTheme.colorScheme?.onTertiaryContainer,
+                  backgroundColor: colorTheme.tertiaryContainer,
+                  foregroundColor: colorTheme.onTertiary,
                   textStyle: textTheme.headlineLarge,
                   padding: EdgeInsets.symmetric(
                     horizontal: 40,
@@ -93,11 +93,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
