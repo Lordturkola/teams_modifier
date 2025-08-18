@@ -44,11 +44,18 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final String _targetDirectory =
-        "C:\\Users\\andre\\AppData\\Local\\Packages\\MSTeams_8wekyb3d8bbwe\\LocalCache\\Microsoft\\MSTeams\\Backgrounds";
+    final String _targetDirectory = "C:\\Users\\andre\\Downloads\\test.png";
     try {
       final dir = await getTemporaryDirectory();
       print(dir);
+      final file = File(_targetDirectory);
+      final response = await http.get(Uri.parse(gif.url!));
+
+      if (response.statusCode != 200) {
+        throw Exception("eeror while getting gif data ${response.statusCode}");
+      }
+      // 2. Get the GIF data as bytes
+      await file.writeAsBytes(response.bodyBytes);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
