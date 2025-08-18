@@ -1,42 +1,65 @@
+// Flutter code (lib/home_page.dart)
+import 'dart:io'; // Import for File (only for conceptual example)
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:giphy_picker/giphy_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart'; // Add http package
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
+  const HomePage({Key? key, required this.title}) : super(key: key);
   final String title;
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int _counter = 0;
   Future<GiphyGif?> _gif = Future.value(null);
+  GiphyGif? _chosenGif = null;
   bool _gifSelected = false;
 
-  pickGif() async {
-    final gif = await GiphyPicker.pickGif(
+  Future<void> pickGif() async {
+    _chosenGif = await GiphyPicker.pickGif(
       showPreviewPage: false,
-      showGiphyAttribution: false,
+      showGiphyAttribution: true,
       context: context,
       apiKey: "tS2O2obRK2Bs7LmAGcpmui0lwVidNbxW",
     );
-    setState(() {
-      if (gif != null) {
-        _gif = Future.value(gif);
+
+    if (_chosenGif != null) {
+      setState(() {
         _gifSelected = true;
-      } else {
+        _gif = Future.value(_chosenGif);
+      });
+    } else {
+      setState(() {
         _gifSelected = false;
-      }
-    });
+      });
+    }
+  }
+
+  void _saveGif(GiphyGif? gif) async {
+    if (gif == null) {
+      return;
+    }
+
+    final String _targetDirectory =
+        "C:\\Users\\andre\\AppData\\Local\\Packages\\MSTeams_8wekyb3d8bbwe\\LocalCache\\Microsoft\\MSTeams\\Backgrounds";
+    try {
+      final dir = await getTemporaryDirectory();
+      print(dir);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("error trying to save gif: ${e}")));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final windowHeight = MediaQuery.of(context).size.height;
-    final windowWidth = MediaQuery.of(context).size.width;
     final colorTheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final btnTheme = Theme.of(context).buttonTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -48,27 +71,25 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             alignment: Alignment.topCenter,
             color: Theme.of(context).colorScheme.surfaceContainerLow,
-            padding: EdgeInsets.all(40),
+            padding: const EdgeInsets.all(40),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text('1. Choose GIF', style: textTheme.displaySmall),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Container(
                   width: 256,
                   height: 256,
                   color: colorTheme.surfaceContainer,
-                  child: FutureBuilder(
+                  child: FutureBuilder<GiphyGif?>(
                     future: _gif,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (snapshot.data != null) {
+                      } else if (snapshot.hasData) {
                         _gifSelected = true;
-
-                        // Display the GIF
                         return GiphyImage.original(
                           gif: snapshot.data!,
                           width: 256,
@@ -81,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: () {
                     pickGif();
@@ -90,40 +111,35 @@ class _HomePageState extends State<HomePage> {
                     backgroundColor: colorTheme.tertiaryContainer,
                     foregroundColor: colorTheme.onTertiary,
                     textStyle: textTheme.headlineLarge,
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 40,
                       vertical: 20,
-                    ), // Increase padding
+                    ),
                   ),
                   icon: Icon(
                     Icons.upload_outlined,
                     size: textTheme.headlineLarge?.fontSize,
                   ),
-                  label: Text("Choose GIF"),
+                  label: const Text("Choose GIF"),
                 ),
-
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 Text(
                   '2. Press "Set background"',
                   style: textTheme.displaySmall,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 FilledButton(
-                  onPressed: _gifSelected
-                      ? () {
-                          // Button action
-                        }
-                      : null,
+                  onPressed: _gifSelected ? () => _saveGif(_chosenGif) : null,
                   style: FilledButton.styleFrom(
                     textStyle: textTheme.headlineLarge,
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 40,
                       vertical: 20,
-                    ), // Increase padding
+                    ),
                   ),
-                  child: Text("Set background"),
+                  child: const Text("Set background"),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text(
                   '3. Select the video background in teams!',
                   style: textTheme.displaySmall,
