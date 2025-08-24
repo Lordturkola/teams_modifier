@@ -100,6 +100,7 @@ class _HomePageState extends State<HomePage> {
     return Future.value(null);
   }
 
+  void _setBackground(File file) {}
   void _saveGif(GiphyGif? gif) async {
     if (gif == null) {
       return;
@@ -108,7 +109,7 @@ class _HomePageState extends State<HomePage> {
     final String _testDirectory = "C:\\Users\\andre\\Downloads\\";
     final String _targetDirectory =
         r'C:\Users\andre\AppData\Local\Packages\MSTeams_8wekyb3d8bbwe\LocalCache\Microsoft\MSTeams\Backgrounds\';
-    final String teamsFileName = 'feelingDreamy2Animated_v=0.1.mp4';
+    String teamsFileName = 'feelingDreamyAnimated_v=0.1.mp4';
 
     try {
       if (!Platform.isWindows) {
@@ -126,15 +127,30 @@ class _HomePageState extends State<HomePage> {
       // 2. Get the GIF data as bytes
       await file.writeAsBytes(response.bodyBytes);
       final convertedFile = await saveStreamedMp4(file, tempPath.path);
-      final teamBGFile = await convertedFile.rename(
-        "$_targetDirectory$teamsFileName",
-      );
+      File teamBGFile;
+
+      try {
+        teamBGFile = await convertedFile.rename(
+          "$_targetDirectory$teamsFileName",
+        );
+      } catch (e) {
+        print(e);
+        teamsFileName = "feelingDreamy2Animated_v=0.1.mp4";
+        teamBGFile = await convertedFile.rename(
+          "$_targetDirectory$teamsFileName",
+        );
+      }
+
       print('✅ File moved to: ${teamBGFile.path}');
       print('✅ check teams!');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("✅ Check teams! Select ${teamsFileName}")),
+      );
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("error trying to set gif: ${e}")));
+      ).showSnackBar(SnackBar(content: Text("error trying to set gifs: ${e}")));
     }
   }
 
