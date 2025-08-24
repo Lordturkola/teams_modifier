@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
     final String _testDirectory = "C:\\Users\\andre\\Downloads\\";
     final String _targetDirectory =
         r'C:\Users\andre\AppData\Local\Packages\MSTeams_8wekyb3d8bbwe\LocalCache\Microsoft\MSTeams\Backgrounds\';
-    String teamsFileName = 'feelingDreamyAnimated_v=0.1.mp4';
+    String teamsFileName = 'feelingDreamy2Animated_v=0.1.mp4';
 
     try {
       if (!Platform.isWindows) {
@@ -135,7 +135,7 @@ class _HomePageState extends State<HomePage> {
         );
       } catch (e) {
         print(e);
-        teamsFileName = "feelingDreamy2Animated_v=0.1.mp4";
+        teamsFileName = "feelingDreamy4Animated_v=0.1.mp4";
         teamBGFile = await convertedFile.rename(
           "$_targetDirectory$teamsFileName",
         );
