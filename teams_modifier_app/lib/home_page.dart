@@ -73,6 +73,9 @@ class _HomePageState extends State<HomePage> {
           print('✅ MP4 saved at $filePath');
         } else {
           print('❌ Failed to download video: ${videoResponse.statusCode}');
+          throw Exception(
+            '❌ Failed to download video: ${videoResponse.statusCode}',
+          );
         }
       } else {
         print('⚠️ Invalid API response format');
