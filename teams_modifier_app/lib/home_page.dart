@@ -1,4 +1,5 @@
 // Flutter code (lib/home_page.dart)
+import 'dart:convert';
 import 'dart:io'; // Import for File (only for conceptual example)
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,12 +40,54 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> saveStreamedMp4(File gifFile, String targetDir) async {
+    final url = Uri.parse('https://api.ffmpeg-api.com/ffmpeg/run');
+
+    final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] =
+          'Basic QlVaV2NCMFJYVXBJcmI4VEJ1dEE6MzQ5NzEwZTNjOGE0MzA0M2M2ZDlmMWE4'
+      ..fields['command'] = '''
+      {
+        "inputs":[{"options":[],"file":"input.gif"}],
+        "outputs":[{"options":[],"file":"output.mp4"}]
+      }
+    '''
+      ..files.add(await http.MultipartFile.fromPath('input.gif', gifFile.path));
+
+    try {
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      final json = jsonDecode(responseBody);
+
+      if (json['ok'] == true &&
+          json['result'] != null &&
+          json['result'].isNotEmpty) {
+        final fileUrl = json['result'][0]['file'];
+        final filename = json['result'][0]['filename'] ?? 'output.mp4';
+
+        final videoResponse = await http.get(Uri.parse(fileUrl));
+        if (videoResponse.statusCode == 200) {
+          final filePath = targetDir + filename;
+          final file = File(filePath);
+          await file.writeAsBytes(videoResponse.bodyBytes);
+          print('✅ MP4 saved at $filePath');
+        } else {
+          print('❌ Failed to download video: ${videoResponse.statusCode}');
+        }
+      } else {
+        print('⚠️ Invalid API response format');
+      }
+    } catch (e) {
+      print('🚨 Error occurred: $e');
+    }
+  }
+
   void _saveGif(GiphyGif? gif) async {
     if (gif == null) {
       return;
     }
 
-    final String _targetDirectory = "C:\\Users\\andre\\Downloads\\test.gif";
+    final String _targetDirectory = "C:\\Users\\andre\\Downloads\\";
 
     try {
       if (!Platform.isWindows) {
@@ -52,7 +95,7 @@ class _HomePageState extends State<HomePage> {
       }
       final dir = await getTemporaryDirectory();
       print(dir);
-      final file = File(_targetDirectory);
+      final file = File(_targetDirectory + "temp.gif");
       final response = await http.get(Uri.parse(gif.images!.original!.url!));
       print(response);
 
@@ -61,6 +104,7 @@ class _HomePageState extends State<HomePage> {
       }
       // 2. Get the GIF data as bytes
       await file.writeAsBytes(response.bodyBytes);
+      saveStreamedMp4(file, _targetDirectory);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
