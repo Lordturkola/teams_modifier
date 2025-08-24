@@ -40,49 +40,64 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> saveStreamedMp4(File gifFile, String targetDir) async {
+  Future<File> saveStreamedMp4(File gifFile, String targetDir) async {
     final url = Uri.parse('https://api.ffmpeg-api.com/ffmpeg/run');
 
     final request = http.MultipartRequest('POST', url)
       ..headers['Authorization'] =
           'Basic QlVaV2NCMFJYVXBJcmI4VEJ1dEE6MzQ5NzEwZTNjOGE0MzA0M2M2ZDlmMWE4'
       ..fields['command'] = '''
-      {
-        "inputs":[{"options":[],"file":"input.gif"}],
-        "outputs":[{"options":[],"file":"output.mp4"}]
-      }
+{
+  "inputs": [
+    { "file": "input.gif", "options": [] }
+  ],
+  "outputs": [
+    {
+      "file": "output.mp4",
+      "options": [
+        "-c:v", "libx264",
+        "-profile:v", "main",
+        "-level", "3.1",
+        "-preset", "slow",
+        "-crf", "23",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        "-movflags", "+faststart"
+      ]
+    }
+  ]
+}
     '''
       ..files.add(await http.MultipartFile.fromPath('input.gif', gifFile.path));
 
-    try {
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
-      final json = jsonDecode(responseBody);
+    final response = await request.send();
+    final responseBody = await response.stream.bytesToString();
+    final json = jsonDecode(responseBody);
 
-      if (json['ok'] == true &&
-          json['result'] != null &&
-          json['result'].isNotEmpty) {
-        final fileUrl = json['result'][0]['file'];
-        final filename = json['result'][0]['filename'] ?? 'output.mp4';
+    if (json['ok'] == true &&
+        json['result'] != null &&
+        json['result'].isNotEmpty) {
+      final fileUrl = json['result'][0]['file'];
+      final filename = json['result'][0]['filename'] ?? 'output.mp4';
 
-        final videoResponse = await http.get(Uri.parse(fileUrl));
-        if (videoResponse.statusCode == 200) {
-          final filePath = targetDir + filename;
-          final file = File(filePath);
-          await file.writeAsBytes(videoResponse.bodyBytes);
-          print('✅ MP4 saved at $filePath');
-        } else {
-          print('❌ Failed to download video: ${videoResponse.statusCode}');
-          throw Exception(
-            '❌ Failed to download video: ${videoResponse.statusCode}',
-          );
-        }
+      final videoResponse = await http.get(Uri.parse(fileUrl));
+      if (videoResponse.statusCode == 200) {
+        final filePath = targetDir + filename;
+        final file = File(filePath);
+        await file.writeAsBytes(videoResponse.bodyBytes);
+        print('✅ MP4 saved at $filePath');
+        return Future.value(file);
       } else {
-        print('⚠️ Invalid API response format');
+        print('❌ Failed to download video: ${videoResponse.statusCode}');
+        throw Exception(
+          '❌ Failed to download video: ${videoResponse.statusCode}',
+        );
       }
-    } catch (e) {
-      print('🚨 Error occurred: $e');
+    } else {
+      print('⚠️ Invalid API response format');
     }
+    return Future.value(null);
   }
 
   void _saveGif(GiphyGif? gif) async {
@@ -90,15 +105,18 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final String _targetDirectory = "C:\\Users\\andre\\Downloads\\";
+    final String _testDirectory = "C:\\Users\\andre\\Downloads\\";
+    final String _targetDirectory =
+        r'C:\Users\andre\AppData\Local\Packages\MSTeams_8wekyb3d8bbwe\LocalCache\Microsoft\MSTeams\Backgrounds\';
+    final String teamsFileName = 'feelingDreamy2Animated_v=0.1.mp4';
 
     try {
       if (!Platform.isWindows) {
         throw Exception("This app only works on Windows");
       }
-      final dir = await getTemporaryDirectory();
-      print(dir);
-      final file = File(_targetDirectory + "temp.gif");
+      final tempPath = await getTemporaryDirectory();
+      print(tempPath);
+      final file = File("${tempPath.path}\\temp.gif");
       final response = await http.get(Uri.parse(gif.images!.original!.url!));
       print(response);
 
@@ -107,11 +125,16 @@ class _HomePageState extends State<HomePage> {
       }
       // 2. Get the GIF data as bytes
       await file.writeAsBytes(response.bodyBytes);
-      saveStreamedMp4(file, _targetDirectory);
+      final convertedFile = await saveStreamedMp4(file, tempPath.path);
+      final teamBGFile = await convertedFile.rename(
+        "$_targetDirectory$teamsFileName",
+      );
+      print('✅ File moved to: ${teamBGFile.path}');
+      print('✅ check teams!');
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("error trying to save gif: ${e}")));
+      ).showSnackBar(SnackBar(content: Text("error trying to set gif: ${e}")));
     }
   }
 
