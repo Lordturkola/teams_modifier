@@ -44,15 +44,20 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final String _targetDirectory = "C:\\Users\\andre\\Downloads\\test.png";
+    final String _targetDirectory = "C:\\Users\\andre\\Downloads\\test.gif";
+
     try {
+      if (!Platform.isWindows) {
+        throw Exception("This app only works on Windows");
+      }
       final dir = await getTemporaryDirectory();
       print(dir);
       final file = File(_targetDirectory);
-      final response = await http.get(Uri.parse(gif.url!));
+      final response = await http.get(Uri.parse(gif.images!.original!.url!));
+      print(response);
 
       if (response.statusCode != 200) {
-        throw Exception("eeror while getting gif data ${response.statusCode}");
+        throw Exception("error while getting gif data ${response.statusCode}");
       }
       // 2. Get the GIF data as bytes
       await file.writeAsBytes(response.bodyBytes);
