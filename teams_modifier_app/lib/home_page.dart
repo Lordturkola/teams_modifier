@@ -100,7 +100,14 @@ class _HomePageState extends State<HomePage> {
     return Future.value(null);
   }
 
-  void _setBackground(File file) {}
+  String? _findTeamsPath(String src) {
+    final expr = RegExp(
+      r'C:\\Users\\andre\\AppData\\Local\\Packages\\MSTeams_[^\\]+\\LocalCache\\Microsoft\\MSTeams\\Backgrounds\\',
+      caseSensitive: false,
+    );
+    return expr.firstMatch(src)?.group(0);
+  }
+
   void _saveGif(GiphyGif? gif) async {
     if (gif == null) {
       return;
