@@ -100,12 +100,31 @@ class _HomePageState extends State<HomePage> {
     return Future.value(null);
   }
 
-  String? _findTeamsPath(String src) {
-    final expr = RegExp(
-      r'C:\\Users\\andre\\AppData\\Local\\Packages\\MSTeams_[^\\]+\\LocalCache\\Microsoft\\MSTeams\\Backgrounds\\',
-      caseSensitive: false,
+  String? _findTeamsPath(String? srcPath) {
+    if (srcPath == null) return null;
+
+    final basePattern = RegExp(r'.*AppData\\Local\\Packages\\MSTeams_.+');
+    final backgroundsPattern = RegExp(
+      r'.*AppData\\Local\\Packages\\MSTeams_.+\\Backgrounds',
     );
-    return expr.firstMatch(src)?.group(0);
+
+    final rootDir = Directory(srcPath);
+    if (!rootDir.existsSync()) return null;
+
+    // Traverse recursively
+    final allDirs = rootDir
+        .listSync(recursive: true, followLinks: false)
+        .whereType<Directory>();
+    var matches = [];
+    for (var dir in allDirs) {
+      if (backgroundsPattern.hasMatch(dir.path)) {
+        matches.add(dir.path); // Found camdidate to the Backgrounds folder
+      }
+    }
+    // check if it returns exactly one, otherwise some weird shiet is going on
+    return matches.length == 1
+        ? matches.first
+        : throw Exception("more than 1 teams path; wtf");
   }
 
   void _saveGif(GiphyGif? gif) async {
@@ -113,9 +132,6 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final String _testDirectory = "C:\\Users\\andre\\Downloads\\";
-    final String _targetDirectory =
-        r'C:\Users\andre\AppData\Local\Packages\MSTeams_8wekyb3d8bbwe\LocalCache\Microsoft\MSTeams\Backgrounds\';
     String teamsFileName = 'feelingDreamy2Animated_v=0.1.mp4';
 
     try {
@@ -135,16 +151,19 @@ class _HomePageState extends State<HomePage> {
       await file.writeAsBytes(response.bodyBytes);
       final convertedFile = await saveStreamedMp4(file, tempPath.path);
       File teamBGFile;
-
+      String? _targetDirectoryPath = _findTeamsPath(
+        Platform.environment['LOCALAPPDATA'],
+      );
+      _targetDirectoryPath ??= "";
       try {
         teamBGFile = await convertedFile.rename(
-          "$_targetDirectory$teamsFileName",
+          "$_targetDirectoryPath$teamsFileName",
         );
       } catch (e) {
         print(e);
         teamsFileName = "feelingDreamy4Animated_v=0.1.mp4";
         teamBGFile = await convertedFile.rename(
-          "$_targetDirectory$teamsFileName",
+          "$_targetDirectoryPath$teamsFileName",
         );
       }
 
@@ -152,12 +171,18 @@ class _HomePageState extends State<HomePage> {
       print('✅ check teams!');
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("✅ Check teams! Select ${teamsFileName}")),
+        SnackBar(
+          content: Text("✅ Check teams! Select ${teamsFileName}"),
+          duration: const Duration(minutes: 1),
+        ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("error trying to set gifs: ${e}")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("error trying to set gifs: ${e}"),
+          duration: const Duration(minutes: 1),
+        ),
+      );
     }
   }
 
