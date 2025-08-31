@@ -47,28 +47,28 @@ class _HomePageState extends State<HomePage> {
       ..headers['Authorization'] =
           'Basic QlVaV2NCMFJYVXBJcmI4VEJ1dEE6MzQ5NzEwZTNjOGE0MzA0M2M2ZDlmMWE4'
       ..fields['command'] = '''
-{
-  "inputs": [
-    { "file": "input.gif", "options": [] }
-  ],
-  "outputs": [
-    {
-      "file": "output.mp4",
-      "options": [
-        "-c:v", "libx264",
-        "-profile:v", "main",
-        "-level", "3.1",
-        "-preset", "slow",
-        "-crf", "23",
-        "-pix_fmt", "yuv420p",
-        "-c:a", "aac",
-        "-b:a", "128k",
-        "-movflags", "+faststart"
-      ]
-    }
-  ]
-}
-    '''
+      {
+        "inputs": [
+          { "file": "input.gif", "options": [] }
+        ],
+        "outputs": [
+          {
+            "file": "output.mp4",
+            "options": [
+              "-c:v", "libx264",
+              "-profile:v", "main",
+              "-level", "3.1",
+              "-preset", "slow",
+              "-crf", "23",
+              "-pix_fmt", "yuv420p",
+              "-c:a", "aac",
+              "-b:a", "128k",
+              "-movflags", "+faststart"
+            ]
+          }
+        ]
+      }
+          '''
       ..files.add(await http.MultipartFile.fromPath('input.gif', gifFile.path));
 
     final response = await request.send();
@@ -100,16 +100,16 @@ class _HomePageState extends State<HomePage> {
     return Future.value(null);
   }
 
-  String? _findTeamsPath(String? srcPath) {
-    if (srcPath == null) return null;
+  String? _findTeamsPath() {
+    final srcPath = "${Platform.environment['LOCALAPPDATA']}\\Packages";
 
-    final basePattern = RegExp(r'.*AppData\\Local\\Packages\\MSTeams_.+');
+    final basePattern = RegExp(r'.*AppData\\Local\\Packages');
     final backgroundsPattern = RegExp(
-      r'.*AppData\\Local\\Packages\\MSTeams_.+\\Backgrounds',
+      r'.*AppData\\Local\\Packages\\MSTeams_.+\\Backgrounds$',
     );
 
     final rootDir = Directory(srcPath);
-    if (!rootDir.existsSync()) return null;
+    if (!rootDir.existsSync() || !basePattern.hasMatch(srcPath)) return null;
 
     // Traverse recursively
     final allDirs = rootDir
@@ -151,9 +151,7 @@ class _HomePageState extends State<HomePage> {
       await file.writeAsBytes(response.bodyBytes);
       final convertedFile = await saveStreamedMp4(file, tempPath.path);
       File teamBGFile;
-      String? _targetDirectoryPath = _findTeamsPath(
-        Platform.environment['LOCALAPPDATA'],
-      );
+      String? _targetDirectoryPath = _findTeamsPath();
       _targetDirectoryPath ??= "";
       try {
         teamBGFile = await convertedFile.rename(
@@ -172,13 +170,17 @@ class _HomePageState extends State<HomePage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("✅ Check teams! Select ${teamsFileName}"),
+          backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+          content: Text(
+            "✅ Check teams! Select Feeling Dreamy 4 or Feeling Dreamy 2",
+          ),
           duration: const Duration(minutes: 1),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: Theme.of(context).colorScheme.error,
           content: Text("error trying to set gifs: ${e}"),
           duration: const Duration(minutes: 1),
         ),
@@ -271,7 +273,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  '3. Select the video background in teams!',
+                  '3. Select the video background feeling dreamy 2 or feeling dreamy 4 in teams!',
                   style: textTheme.displaySmall,
                 ),
               ],
