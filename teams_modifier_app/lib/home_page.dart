@@ -19,8 +19,10 @@ class _HomePageState extends State<HomePage> {
   Future<GiphyGif?> _gif = Future.value(null);
   GiphyGif? _chosenGif = null;
   bool _gifSelected = false;
+  Future<bool>? _inProgress;
 
   Future<void> pickGif() async {
+    ScaffoldMessenger.of(context).clearSnackBars();
     _chosenGif = await GiphyPicker.pickGif(
       showPreviewPage: false,
       showGiphyAttribution: true,
@@ -128,6 +130,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<bool> _saveGif() async {
+    ScaffoldMessenger.of(context).clearSnackBars();
     final gif = _chosenGif;
 
     if (gif == null) {
@@ -173,9 +176,9 @@ class _HomePageState extends State<HomePage> {
         SnackBar(
           backgroundColor: Theme.of(context).colorScheme.inverseSurface,
           content: Text(
-            "✅ Updated, Check teams! Select'Feeling Dreamy 4' or 'Feeling Dreamy 2'",
+            "✅ Updated, Check teams! Select 'Feeling Dreamy 4' or 'Feeling Dreamy 2'",
           ),
-          duration: const Duration(minutes: 5),
+          duration: const Duration(days: 365),
         ),
       );
     } catch (e) {
@@ -183,7 +186,7 @@ class _HomePageState extends State<HomePage> {
         SnackBar(
           backgroundColor: Theme.of(context).colorScheme.error,
           content: Text("error trying to set gifs: ${e}"),
-          duration: const Duration(minutes: 5),
+          duration: const Duration(days: 365),
         ),
       );
     }
@@ -238,9 +241,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    pickGif();
-                  },
+                  onPressed: () => pickGif(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorTheme.primaryContainer,
                     foregroundColor: colorTheme.onPrimary,
@@ -263,7 +264,11 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 20),
                 FilledButton.icon(
-                  onPressed: _gifSelected ? () => _saveGif() : null,
+                  onPressed: _gifSelected
+                      ? () => setState(() {
+                          _inProgress = _saveGif();
+                        })
+                      : null,
                   style: FilledButton.styleFrom(
                     backgroundColor: Theme.of(
                       context,
@@ -275,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   icon: FutureBuilder<bool>(
-                    future: _saveGif(),
+                    future: _inProgress,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
@@ -290,7 +295,7 @@ class _HomePageState extends State<HomePage> {
                         );
                       } else if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (snapshot.hasData) {
+                      } else if (snapshot.hasData && snapshot.data == true) {
                         return Icon(
                           Icons.check_circle,
                           size: textTheme.headlineLarge?.fontSize,
