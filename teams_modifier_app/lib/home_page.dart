@@ -127,13 +127,14 @@ class _HomePageState extends State<HomePage> {
         : throw Exception("more than 1 teams path; wtf");
   }
 
-  void _saveGif(GiphyGif? gif) async {
+  Future<bool> _saveGif() async {
+    final gif = _chosenGif;
+
     if (gif == null) {
-      return;
+      return Future.value(false);
     }
 
     String teamsFileName = 'feelingDreamy2Animated_v=0.1.mp4';
-
     try {
       if (!Platform.isWindows) {
         throw Exception("This app only works on Windows");
@@ -172,9 +173,9 @@ class _HomePageState extends State<HomePage> {
         SnackBar(
           backgroundColor: Theme.of(context).colorScheme.inverseSurface,
           content: Text(
-            "✅ Check teams! Select Feeling Dreamy 4 or Feeling Dreamy 2",
+            "✅ Updated, Check teams! Select'Feeling Dreamy 4' or 'Feeling Dreamy 2'",
           ),
-          duration: const Duration(minutes: 1),
+          duration: const Duration(minutes: 5),
         ),
       );
     } catch (e) {
@@ -182,10 +183,11 @@ class _HomePageState extends State<HomePage> {
         SnackBar(
           backgroundColor: Theme.of(context).colorScheme.error,
           content: Text("error trying to set gifs: ${e}"),
-          duration: const Duration(minutes: 1),
+          duration: const Duration(minutes: 5),
         ),
       );
     }
+    return Future.value(true);
   }
 
   @override
@@ -240,8 +242,8 @@ class _HomePageState extends State<HomePage> {
                     pickGif();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: colorTheme.tertiaryContainer,
-                    foregroundColor: colorTheme.onTertiary,
+                    backgroundColor: colorTheme.primaryContainer,
+                    foregroundColor: colorTheme.onPrimary,
                     textStyle: textTheme.headlineLarge,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 40,
@@ -260,21 +262,48 @@ class _HomePageState extends State<HomePage> {
                   style: textTheme.displaySmall,
                 ),
                 const SizedBox(height: 20),
-                FilledButton(
-                  onPressed: _gifSelected ? () => _saveGif(_chosenGif) : null,
+                FilledButton.icon(
+                  onPressed: _gifSelected ? () => _saveGif() : null,
                   style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer,
                     textStyle: textTheme.headlineLarge,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 40,
                       vertical: 20,
                     ),
                   ),
-                  child: const Text("Set background"),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  '3. Select the video background feeling dreamy 2 or feeling dreamy 4 in teams!',
-                  style: textTheme.displaySmall,
+                  icon: FutureBuilder<bool>(
+                    future: _saveGif(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onTertiaryContainer,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.tertiaryContainer,
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (snapshot.hasData) {
+                        return Icon(
+                          Icons.check_circle,
+                          size: textTheme.headlineLarge?.fontSize,
+                        );
+                      } else {
+                        return Icon(
+                          Icons.save_alt,
+                          size: textTheme.headlineLarge?.fontSize,
+                        );
+                      }
+                    },
+                  ),
+                  label: const Text("Set background"),
                 ),
               ],
             ),
