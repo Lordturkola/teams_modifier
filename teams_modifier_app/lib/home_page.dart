@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:path_provider/path_provider.dart'; // Add http package
 
 class HomePage extends StatefulWidget {
@@ -103,7 +104,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   String? _findTeamsPath() {
-    final srcPath = "${Platform.environment['LOCALAPPDATA']}\\Packages";
+    final srcPath =
+        "${Platform.environment['LOCALAPPDATA']}\\Packages\\MSTeams_8wekyb3d8bbwe\\LocalCache\\Microsoft\\MSTeams\\Backgrounds\\";
 
     final basePattern = RegExp(r'.*AppData\\Local\\Packages');
     final backgroundsPattern = RegExp(
@@ -111,22 +113,30 @@ class _HomePageState extends State<HomePage> {
     );
 
     final rootDir = Directory(srcPath);
-    if (!rootDir.existsSync() || !basePattern.hasMatch(srcPath)) return null;
+    rootDir.createSync(recursive: true);
+    print("${rootDir.path}");
+    if (!rootDir.existsSync()) {
+      throw Exception("ehhhh the path: ${rootDir.path} \n dosen't exist...");
+    } else {
+      return rootDir.path;
+    }
 
     // Traverse recursively
-    final allDirs = rootDir
-        .listSync(recursive: true, followLinks: false)
-        .whereType<Directory>();
-    var matches = [];
-    for (var dir in allDirs) {
-      if (backgroundsPattern.hasMatch(dir.path)) {
-        matches.add(dir.path); // Found camdidate to the Backgrounds folder
-      }
-    }
-    // check if it returns exactly one, otherwise some weird shiet is going on
-    return matches.length == 1
-        ? matches.first
-        : throw Exception("more than 1 teams path; wtf");
+    // final allDirs = rootDir
+    //     .listSync(recursive: true, followLinks: false)
+    //     .whereType<Directory>();
+    // var matches = [];
+    // for (var dir in allDirs) {
+    //   if (backgroundsPattern.hasMatch(dir.path)) {
+    //     matches.add(dir.path); // Found camdidate to the Backgrounds folder
+    //   }
+    // }
+    // // check if it returns exactly one, otherwise some weird shiet is going on
+    // return matches.length == 1
+    //     ? matches.first
+    //     : throw Exception(
+    //         "eh the no. of teams path = ${matches.length}; wtf o.O \n The paths are ${matches}",
+    //       );
   }
 
   Future<bool> _saveGif() async {
@@ -165,7 +175,7 @@ class _HomePageState extends State<HomePage> {
         print(e);
         teamsFileName = "feelingDreamy4Animated_v=0.1.mp4";
         teamBGFile = await convertedFile.rename(
-          "$_targetDirectoryPath$teamsFileName",
+          "\\$_targetDirectoryPath$teamsFileName",
         );
       }
 
