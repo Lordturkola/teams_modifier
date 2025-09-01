@@ -82,11 +82,11 @@ class _HomePageState extends State<HomePage> {
         json['result'] != null &&
         json['result'].isNotEmpty) {
       final fileUrl = json['result'][0]['file'];
-      final filename = json['result'][0]['filename'] ?? 'output.mp4';
+      final filename = 'output.mp4';
 
       final videoResponse = await http.get(Uri.parse(fileUrl));
       if (videoResponse.statusCode == 200) {
-        final filePath = targetDir + filename;
+        final filePath = "${targetDir}\\$filename";
         final file = File(filePath);
         await file.writeAsBytes(videoResponse.bodyBytes);
         print('✅ MP4 saved at $filePath');
@@ -99,6 +99,13 @@ class _HomePageState extends State<HomePage> {
       }
     } else {
       print('⚠️ Invalid API response format');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+          content: Text("⚠️ Yeah.... just try another GIF bro"),
+          duration: const Duration(days: 365),
+        ),
+      );
     }
     return Future.value(null);
   }
